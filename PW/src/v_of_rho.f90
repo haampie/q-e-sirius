@@ -26,6 +26,7 @@ SUBROUTINE v_of_rho( rho, rho_core, rhog_core, &
   USE cell_base,        ONLY : alat
   USE control_flags,    ONLY : ts_vdw
   USE tsvdw_module,     ONLY : tsvdw_calculate, UtsvdW
+  USE cell_base,        ONLY : omega
   USE mod_sirius
   !
   IMPLICIT NONE
@@ -68,14 +69,17 @@ SUBROUTINE v_of_rho( rho, rho_core, rhog_core, &
   ELSE
      CALL v_xc( rho, rho_core, rhog_core, etxc, vtxc, v%of_r )
   ENDIF
+  write(*,*) "(1) SUM v%of_r = ", omega * SUM(v%of_r(:, :) * v%of_r(:, :)) / ( dfftp%nr1*dfftp%nr2*dfftp%nr3 )
   !
   ! ... add a magnetic field  (if any)
   !
   CALL add_bfield( v%of_r, rho%of_r )
+  write(*,*) "(2) SUM v%of_r = ", omega * SUM(v%of_r(:, :) * v%of_r(:, :)) / ( dfftp%nr1*dfftp%nr2*dfftp%nr3 )
   !
   ! ... calculate hartree potential
   !
   CALL v_h( rho%of_g(:,1), ehart, charge, v%of_r )
+  write(*,*) "(3) SUM v%of_r = ", omega * SUM(v%of_r(:, :) * v%of_r(:, :)) / ( dfftp%nr1*dfftp%nr2*dfftp%nr3 )
   !
   ! ... DFT+U(+V): build up (extended) Hubbard potential 
   !
@@ -127,6 +131,8 @@ SUBROUTINE v_of_rho( rho, rho_core, rhog_core, &
   DO is = 1, nspin_lsda
      CALL add_efield(v%of_r(1,is), etotefield, rho%of_r(:,1), .false. )
   END DO
+  
+  write(*,*) "(4) SUM v%of_r = ", omega * SUM(v%of_r(:, :) * v%of_r(:, :)) / ( dfftp%nr1*dfftp%nr2*dfftp%nr3 )
   !
   ! ... add Tkatchenko-Scheffler potential (factor 2: Ha -> Ry)
   !
@@ -138,6 +144,7 @@ SUBROUTINE v_of_rho( rho, rho_core, rhog_core, &
         END DO
      END DO
   END IF
+  write(*,*) "(5) SUM v%of_r = ", omega * SUM(v%of_r(:, :) * v%of_r(:, :)) / ( dfftp%nr1*dfftp%nr2*dfftp%nr3 )
   !
   CALL stop_clock( 'v_of_rho' )
   IF (use_sirius.AND.use_sirius_ks_solver) THEN
@@ -652,6 +659,7 @@ SUBROUTINE v_h( rhog, ehart, charge, v )
         v(:,is) = v(:,is) + DBLE(aux(:))
         !
      END DO
+     write(*,*) "inner hartree = ", omega * SUM(DBLE(aux(:)) * DBLE(aux(:))) / ( dfftp%nr1*dfftp%nr2*dfftp%nr3 )
      !
   END IF
   !

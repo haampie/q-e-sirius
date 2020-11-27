@@ -473,6 +473,8 @@ SUBROUTINE electrons_scf ( printout, exxen )
   LOGICAL :: lhb
   !! if .TRUE. then background states are present (DFT+U)
   !
+   write(*,*) "NUMBER OF SPINS = ", nspin
+
   lhb = .FALSE.
   IF ( lda_plus_u )  THEN
      DO nt = 1, ntyp
@@ -597,6 +599,10 @@ SUBROUTINE electrons_scf ( printout, exxen )
         ethr = MAX( ethr, 1.D-13 )
         !
      ENDIF
+
+     write(*,*) "ethr = ", ethr
+     write(*,*) "dr2 = ", dr2
+     write(*,*) "tr2 = ", tr2
      !
      first = ( iter == 1 )
      !
@@ -996,7 +1002,7 @@ SUBROUTINE electrons_scf ( printout, exxen )
      !
      ! ... adds possible external contribution from plugins to the energy
      !
-     etot = etot + plugin_etot 
+     write(*,*) "ENERGIES = ", etot, eband, ( etxc - etxcc ), ewld, ehart, deband, demet, descf
      !
      CALL print_energies ( printout )
      !
@@ -1483,6 +1489,7 @@ SUBROUTINE electrons_scf ( printout, exxen )
           !
        ELSE
           !
+          write(*, *) "TOTAL ENERGY = ", etot
           WRITE( stdout, 9080 ) etot
           IF ( iverbosity >= 1 ) WRITE( stdout, 9082 ) hwf_energy
           IF ( dr2 > eps8 ) THEN
