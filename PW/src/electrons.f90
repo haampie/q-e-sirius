@@ -501,7 +501,9 @@ SUBROUTINE electrons_scf ( printout, exxen )
                    omega, g, gg, ngm, gcutm, gstart, gamma_only, strf )
     ENDIF
     CALL start_clock( 'electrons' )
-    CALL sirius_find_ground_state(gs_handler, density_tol=1d-8, energy_tol=tr2, niter=niter, save_state=.false.)
+    ! sirius uses both energy and rms as a convergence criterion, but QE only uses rms
+    ! so here we just set energy_tol to something large.
+    CALL sirius_find_ground_state(gs_handler, density_tol=dsqrt(tr2), energy_tol=1.0d0, niter=niter, save_state=.false.)
     CALL stop_clock( 'electrons' )
     !CALL sirius_get_energy(gs_handler, "total", etot)
     etot = etot * 2.d0 ! convert to Ry
@@ -514,7 +516,7 @@ SUBROUTINE electrons_scf ( printout, exxen )
     CALL sirius_get_energy(gs_handler, "one-el", deband)
     deband = -deband * 2.d0 ! convert to Ry
 
-    etot = eband + ( etxc - etxcc ) + ewld + ehart + deband + demet + descf
+    etot = eband + ( etxc - etxcc ) + ewld + ehart + deband + demet
 
     etot_cmp_paw = 0.d0
     epaw = 0.d0
