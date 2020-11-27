@@ -88,6 +88,8 @@ option(QE_ENABLE_CUDA
 option(QE_ENABLE_DOC
     "enable documentation building" OFF)
 
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 # TODO change all ifdefs throughout code base to match
 # cmake options
 # TODO symbols beginning with '__' followed by a capital
